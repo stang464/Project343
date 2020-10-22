@@ -275,7 +275,7 @@
                     </v-col>
                   </v-row>
                   <v-row>
-                    <v-col cols="3" v-for="item in img" :key="item">
+                    <v-col v-for="item in img" :key="item" cols="3">
                       <v-img :src="item"></v-img>
                     </v-col>
                   </v-row>
@@ -318,7 +318,7 @@ export default {
       add: "",
       Address: {},
       genre: "",
-      items: ["ร้านอาหาร", "ร้านขนม", "ร้านกาแฟ", "สถานบันเทิง"],
+      items: ["ร้านอาหาร", "ร้านขนม", "ร้านกาแฟ"],
       arr: {},
       description: "",
       opentime: "",
@@ -331,6 +331,8 @@ export default {
       dialog: false,
       nameRules: [(v) => !!v || "please required"],
       valid: true,
+      rating: 0,
+      review: 0,
     };
   },
   methods: {
@@ -356,22 +358,21 @@ export default {
         open: this.opentime,
         close: this.closetime,
         sub_district: this.sub_district,
-        district: this.district,
-        province: this.province,
         img: this.img,
+        rating: 0,
+        review: 0,
       };
       db.collection("restaurant")
         .doc(this.name)
         .set(data)
         .then(function () {
-          console.log("Document successfully written! -> MyText");
+          alert("สำเร็จ");
         });
     },
     previewImage(event) {
       this.uploadValue = 0;
       this.picture = null;
       this.imageData = event;
-      console.log(this.imageData);
     },
     onUpload() {
       this.picture = null;
@@ -381,7 +382,7 @@ export default {
         "state_changed",
         (snapshot) => {},
         (error) => {
-          console.log(error);
+          alert(error);
         },
         () => {
           uploadTask.snapshot.ref.getDownloadURL().then((dowloadURL) => {

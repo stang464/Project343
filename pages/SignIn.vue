@@ -21,7 +21,7 @@
     </v-row>
     <v-row>
       <v-col>
-        <v-btn @click="singup">LOGIN</v-btn>
+        <v-btn @click="singin">LOGIN</v-btn>
       </v-col>
     </v-row>
   </v-container>
@@ -29,6 +29,7 @@
 
 <script>
 import firebase from "firebase/app";
+import { db } from "~/plugins/firebase.js";
 import "firebase/auth";
 export default {
   data() {
@@ -37,10 +38,11 @@ export default {
       email: "",
       password: "",
       error: "",
+      user: null,
     };
   },
   methods: {
-    singup() {
+    singin() {
       firebase
         .auth()
         .signInWithEmailAndPassword(this.email, this.password)
@@ -53,7 +55,21 @@ export default {
           this.error = error;
           alert(error);
         });
-      this.$store.commit("email", this.email);
+      this.getuser();
+    },
+    getuser() {
+      db.collection("User")
+        .where("email", "==", this.email)
+        .onSnapshot((querySnapshot) => {
+          /* eslint no-var: */
+          var data = [];
+          querySnapshot.forEach((doc) => {
+            data.push(doc.data());
+          });
+          this.user = data;
+          this.$store.commit("user", this.user);
+          console.log(this.user);
+        });
     },
   },
 };

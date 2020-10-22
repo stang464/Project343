@@ -1,79 +1,229 @@
 <template>
-  <v-container>
-    <v-row justify="center" align="center">
-      <v-col cols="12" lg="8" md="6"> <search></search> </v-col>
-    </v-row>
+  <div id="app" class="container">
     <v-row>
-      <v-container fluid>
-        <v-row dense>
-          <v-col v-for="(list, index) in $res" :key="index" cols="12">
-            <v-card>
-              <v-img
-                :src="list.img[0]"
-                class="white--text align-end"
-                gradient="to bottom, rgba(0,0,0,.1), rgba(0,0,0,.5)"
-                height="200px"
+      <v-col cols="2" class="d-none d-md-block">
+        <div>
+          <v-checkbox
+            label="ร้านอาหาร"
+            value="1"
+            v-model="type"
+            @change="selectType"
+          ></v-checkbox>
+          <v-checkbox
+            label="ร้านกาแฟ"
+            value="2"
+            v-model="type"
+            @change="selectType"
+          ></v-checkbox>
+        </div>
+        <div><hr /></div>
+        <div>
+          <div><h3>คะแนน</h3></div>
+          <div>
+            <v-checkbox
+              label="2.0 +"
+              value="2"
+              v-model="secrate"
+              @change="selectRating"
+            ></v-checkbox>
+            <v-checkbox
+              label="3.0 +"
+              value="3"
+              v-model="secrate"
+              @change="selectRating"
+            ></v-checkbox>
+            <v-checkbox
+              label="4.0 +"
+              value="4"
+              v-model="secrate"
+              @change="selectRating"
+            ></v-checkbox>
+          </div>
+          <div>
+            <hr />
+          </div>
+        </div>
+      </v-col>
+      <v-col sm="12" md="10" lg="10">
+        <div>
+          <v-card>
+            <v-carousel
+              cycle
+              height="200"
+              hide-delimiter-background
+              show-arrows-on-hover
+            >
+              <v-carousel-item
+                v-for="item in topres"
+                :key="item.name"
+                :src="item.img[0]"
+                :to="{ name: 'post-id', params: { id: item.name } }"
               >
-                <nuxt-link
-                  :to="{ name: 'post-id', params: { id: list.name } }"
-                  active-class="my-custom-exact-active-link"
-                  ><v-card-title v-text="list.name"></v-card-title
-                ></nuxt-link>
-              </v-img>
+                <div>
+                  <H3>{{ item.name }}</H3>
+                </div>
+              </v-carousel-item>
+            </v-carousel>
+          </v-card>
+        </div>
 
-              <v-card-actions>
-                <v-spacer></v-spacer>
-
-                <v-btn icon @click="getfev(), fav(index)">
-                  <v-icon>mdi-bookmark</v-icon>
-                </v-btn>
-              </v-card-actions>
-            </v-card>
+        <div class="mt-5 justify-center">
+          <v-col cols="10" class="mx-auto d-flex">
+            <v-text-field
+              label="ค้นหา"
+              placeholder="Placeholder"
+              v-model="text"
+              solo
+            ></v-text-field>
+            <v-btn @click="search" class="mx-2" fab dark color="error">
+              <v-icon dark> mdi-magnify </v-icon>
+            </v-btn>
           </v-col>
-        </v-row>
-      </v-container>
+        </div>
+
+        <div v-for="(item, index) in res" :key="index" class="mt-2">
+          <v-card>
+            <v-row class="pa-3">
+              <v-col cols="12" class="d-inline-flex mb-0 py-0">
+                <div class="mr-1">
+                  <n-link :to="{ name: 'post-id', params: { id: item.name } }">
+                    <h4 style="color: black">
+                      {{ item.name }}
+                    </h4>
+                  </n-link>
+                </div>
+                <div>
+                  <span>{{ item.address.sub_district }}</span>
+                </div>
+                <v-spacer></v-spacer>
+                <div>
+                  <v-menu top :close-on-click="closeOnClick">
+                    <template v-slot:activator="{ on, attrs }">
+                      <v-btn
+                        color="primary"
+                        icon
+                        dark
+                        v-bind="attrs"
+                        v-on="on"
+                        @click="genlink(index)"
+                      >
+                        <v-icon>mdi-share-variant</v-icon>
+                      </v-btn>
+                    </template>
+
+                    <v-list>
+                      <v-list-item>
+                        <ShareNetwork
+                          network="facebook"
+                          :url="`https://project-cs343-cs313.web.app/post/${link}`"
+                          :title="item.name"
+                        >
+                          Facebook
+                        </ShareNetwork>
+                      </v-list-item>
+                      <v-list-item>
+                        <ShareNetwork
+                          network="twitter"
+                          :url="`https://project-cs343-cs313.web.app/post/${link}`"
+                          :title="item.name"
+                        >
+                          Twitter
+                        </ShareNetwork>
+                      </v-list-item>
+                    </v-list>
+                  </v-menu>
+                </div>
+                <div>
+                  <v-btn medium icon @click="addfev(index)">
+                    <v-icon>mdi-bookmark</v-icon>
+                  </v-btn>
+                </div>
+              </v-col>
+              <v-col cols="12" class="py-0">
+                <div class="d-inline-flex" style="height: 20px">
+                  <v-sheet
+                    color="warning"
+                    height="20"
+                    width="47"
+                    class="d-inline-flex"
+                    rounded="rounded"
+                  >
+                    <div>
+                      <p style="color: white; font-size: 14px">
+                        {{ item.rating }}
+                      </p>
+                    </div>
+                    <div>
+                      <v-icon small color="white" class="mb-1"
+                        >mdi-star-circle
+                      </v-icon>
+                    </div>
+                  </v-sheet>
+
+                  <div class="ml-1">{{ item.review }} รีวิว</div>
+                </div>
+              </v-col>
+              <v-col cols="12">
+                <v-divider></v-divider>
+              </v-col>
+              <v-col cols="12" class="py-0">
+                {{ item.genre }}
+              </v-col>
+              <v-col cols="3" v-for="i in 4" :key="i" class="d-flex">
+                <v-img
+                  :src="item.img[i - 1]"
+                  aspect-ratio="1"
+                  class="rounded"
+                ></v-img>
+              </v-col>
+            </v-row>
+          </v-card>
+        </div>
+      </v-col>
     </v-row>
-    <div v-show="not">{{ user }}</div>
-  </v-container>
+  </div>
 </template>
 <script>
-import search from "@/components/search";
 import { db } from "~/plugins/firebase.js";
+import firebase from "~/plugins/firebase.js";
+
 export default {
-  components: {
-    search,
-  },
+  components: {},
   data() {
     return {
       not: false,
       res: [],
       index: 0,
       faver: [],
+      link: "",
+      text: "",
+      topres: [],
+      review: 0,
+      type: "0",
+      secrate: "0",
     };
   },
   computed: {
-    $res: {
-      get() {
-        this.getres();
-        return this.res;
-      },
-    },
-    email: {
-      get() {
-        return this.$nuxt.$store.state.email;
-      },
-    },
     login: {
       get() {
         return this.$nuxt.$store.state.login;
       },
     },
-    user() {
-      this.getfev();
-      return this.faver;
+    userdata: {
+      get() {
+        return this.$nuxt.$store.state.user;
+      },
     },
   },
+  created() {
+    this.getres();
+    this.resDesc();
+  },
+
   methods: {
+    genlink(index) {
+      this.link = this.res[index].name.replace(/ /g, "%20");
+    },
     getres() {
       db.collection("restaurant").onSnapshot((querySnapshot) => {
         /* eslint no-var: */
@@ -82,35 +232,47 @@ export default {
           data.push(doc.data());
         });
         this.res = data;
-        // console.log(this.res);
       });
     },
-    getfev() {
-      db.collection("User")
-        .where("email", "==", this.email)
+    search() {
+      var arr = [];
+      db.collection("restaurant")
+        .where("address.province", "==", this.text)
         .onSnapshot((querySnapshot) => {
-          /* eslint no-var: */
-          var data = [];
-          var tmp = [];
           querySnapshot.forEach((doc) => {
-            data.push(doc.data());
-            for (var i in data[0].favorite) {
-              tmp[i] = data[0].favorite[i];
-            }
-            this.faver = tmp;
+            arr.push(doc.data());
           });
         });
+      db.collection("restaurant")
+        .where("address.district", "==", this.text)
+        .onSnapshot((querySnapshot) => {
+          querySnapshot.forEach((doc) => {
+            arr.push(doc.data());
+          });
+        });
+      db.collection("restaurant")
+        .where("address.sub_district", "==", this.text)
+        .onSnapshot((querySnapshot) => {
+          querySnapshot.forEach((doc) => {
+            arr.push(doc.data());
+          });
+        });
+      db.collection("restaurant")
+        .where("name", "==", this.text)
+        .onSnapshot((querySnapshot) => {
+          querySnapshot.forEach((doc) => {
+            arr.push(doc.data());
+          });
+        });
+      this.res = arr;
     },
-
-    fav(index) {
+    addfev(index) {
       if (this.login === false) {
-        var tmp = this.user;
-        var data = this.$res[index].name;
-        tmp.push(data);
-        console.log("tmp :", tmp);
+        var email = this.userdata[0].email;
+        var data = this.res[index].name;
         db.collection("User")
-          .doc(this.email)
-          .update("favorite", tmp)
+          .doc(email)
+          .update({ favorite: firebase.firestore.FieldValue.arrayUnion(data) })
           .then(function () {
             alert("เพิ่มร้านโปรด");
           });
@@ -118,14 +280,67 @@ export default {
         this.$router.push("/SignIn");
       }
     },
+    resDesc() {
+      db.collection("restaurant")
+        .orderBy("rating", "desc")
+        .limit(5)
+        .onSnapshot((querySnapshot) => {
+          var data = [];
+          querySnapshot.forEach((doc) => {
+            data.push(doc.data());
+          });
+          this.topres = data;
+          console.log(this.topres);
+        });
+    },
+    selectType() {
+      var type = "";
+      if (this.type === "1") {
+        type = "ร้านอาหาร";
+      } else if (this.type === "2") {
+        type = "ร้านกาแฟ";
+      } else if (this.type == null) {
+        this.getres();
+      }
+      if (this.type != null) {
+        db.collection("restaurant")
+          .where("genre", "==", type)
+          .onSnapshot((querySnapshot) => {
+            var data = [];
+            querySnapshot.forEach((doc) => {
+              data.push(doc.data());
+            });
+            this.res = data;
+          });
+      }
+    },
+    selectRating() {
+      var point = "";
+      point = this.secrate;
+
+      if(point)
+      db.collection("restaurant")
+        .where("rating", ">=", point)
+        .onSnapshot((querySnapshot) => {
+          var data = [];
+          querySnapshot.forEach((doc) => {
+            data.push(doc.data());
+          });
+          this.res = data;
+        });
+    },
   },
 };
 </script>
 <style>
-.my-custom-exact-active-link {
-  color: red;
+#app {
+  font-family: "Prompt", sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  color: #2c3e50;
 }
-.nuxt-link-exact-active {
-  color: green;
+a {
+  color: black;
+  text-decoration: none;
 }
 </style>

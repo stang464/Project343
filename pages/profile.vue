@@ -3,7 +3,88 @@
     <v-row>
       <v-col cols="12">
         <v-card>
-          <v-card-title>{{ user.user }}</v-card-title>
+          <v-row class="pa-5">
+            <v-col cols="3" md="3" sm="3">
+              <p v-if="userdata[0].img == null">{{ userdata[0].user }}</p>
+
+              <img
+                :src="userdata[0].img"
+                style="border-radius: 5%; width: 100%; hight: auto"
+              />
+              <v-dialog v-model="dialog" persistent max-width="600px">
+                <template v-slot:activator="{ on, attrs }">
+                  <v-btn icon v-bind="attrs" v-on="on"
+                    ><v-icon>mdi-square-edit-outline</v-icon>
+                  </v-btn>
+                </template>
+                <v-card>
+                  <v-card-title>
+                    <span class="headline">User</span>
+                  </v-card-title>
+                  <v-card-text>
+                    <v-container>
+                      <v-row> </v-row>
+                    </v-container>
+                  </v-card-text>
+                  <v-card-actions>
+                    <v-spacer></v-spacer>
+                    <v-btn color="blue darken-1" text @click="dialog = false">
+                      Close
+                    </v-btn>
+                    <v-btn
+                      color="blue darken-1"
+                      text
+                      @click="(dialog = false), edituser()"
+                    >
+                      Save
+                    </v-btn>
+                  </v-card-actions>
+                </v-card>
+              </v-dialog>
+            </v-col>
+            <v-col cols="8" md="8" sm="8">
+              <h3>
+                {{ userdata[0].user }}
+                <v-dialog v-model="dialog" persistent max-width="600px">
+                  <template v-slot:activator="{ on, attrs }">
+                    <v-btn icon v-bind="attrs" v-on="on"
+                      ><v-icon>mdi-square-edit-outline</v-icon>
+                    </v-btn>
+                  </template>
+                  <v-card>
+                    <v-card-title>
+                      <span class="headline">User</span>
+                    </v-card-title>
+                    <v-card-text>
+                      <v-container>
+                        <v-row>
+                          <v-text-field
+                            v-model="newuser"
+                            :label="userdata[0].user"
+                            solo
+                          ></v-text-field>
+                        </v-row>
+                      </v-container>
+                    </v-card-text>
+                    <v-card-actions>
+                      <v-spacer></v-spacer>
+                      <v-btn color="blue darken-1" text @click="dialog = false">
+                        Close
+                      </v-btn>
+                      <v-btn
+                        color="blue darken-1"
+                        text
+                        @click="(dialog = false), edituser()"
+                      >
+                        Save
+                      </v-btn>
+                    </v-card-actions>
+                  </v-card>
+                </v-dialog>
+              </h3>
+              <p>{{ userdata[0].email }}</p>
+            </v-col>
+          </v-row>
         </v-card>
       </v-col>
     </v-row>
@@ -11,13 +92,19 @@
       <v-col cols="12">
         <h2>ร้านโปรด</h2>
         <v-card>
-          <v-col>
+          <v-col cols="12">
             <v-list>
-              <v-list v-for="item in user.favorite" :key="item">
+              <v-list
+                v-for="(item, index) in userdata[0].favorite"
+                :key="index"
+              >
                 <nuxt-link :to="{ name: 'post-id', params: { id: item } }">{{
                   item
-                }}</nuxt-link></v-list
-              >
+                }}</nuxt-link>
+                <v-btn icon color="pink" @click="unfav(index)"
+                  ><v-icon> mdi-bookmark-off</v-icon></v-btn
+                >
+              </v-list>
             </v-list>
           </v-col>
         </v-card>
@@ -28,16 +115,21 @@
 
 <script>
 import { db } from "~/plugins/firebase.js";
+import firebase from "~/plugins/firebase.js";
+
 export default {
+  components: {},
   data() {
     return {
       list: [],
+      dialog: false,
+      newuser: "",
     };
   },
   computed: {
-    email: {
+    userdata: {
       get() {
-        return this.$nuxt.$store.state.email;
+        return this.$nuxt.$store.state.user;
       },
     },
     user: {
@@ -51,7 +143,7 @@ export default {
   methods: {
     getdata() {
       db.collection("User")
-        .where("email", "==", this.email)
+        .where("email", "==", this.userdata[0].email)
         .onSnapshot((querySnapshot) => {
           /* eslint no-var: */
           var data = [];
@@ -61,6 +153,20 @@ export default {
           this.list = Object.values(data);
           this.list = this.list[0];
         });
+    },
+    unfav(index) {
+      console.log(this.userdata[0].favorite[index]);
+      db.collection("User")
+        .doc(this.userdata[0].email)
+        .update({
+          favorite: firebase.firestore.FieldValue.arrayRemove(
+            this.userdata[0].favorite[index]
+          ),
+        });
+    },
+    edituser() {
+      var data = { user: this.newuser };
+      db.collection("User").doc(this.userdata[0].email).update(data);
     },
   },
 };

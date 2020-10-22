@@ -1,13 +1,17 @@
+export const strict = false;
 export const state = () => ({
   login: true,
-  email: "",
+  user: null,
 });
 
 export const mutations = {
   login(state, val) {
     state.login = val;
   },
-  email(state, val) {
-    state.email = val;
+  user(state, val) {
+    state.user = val;
+  },
+  update(state, val) {
+    state.user[0].favorite = val;
   },
 };

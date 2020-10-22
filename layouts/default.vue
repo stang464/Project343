@@ -15,6 +15,7 @@
       </v-col>
       <v-col cols="auto">
         <v-btn v-show="!login" to="/profile">PROFILE</v-btn>
+        <v-btn v-show="login" to="/admin">Admin</v-btn>
         <v-btn v-show="login" to="/SignIn">Login</v-btn>
         <v-btn v-if="!login" @click="signOut">Sign Out</v-btn>
       </v-col>
@@ -75,7 +76,6 @@ export default {
         .auth()
         .signOut()
         .then((result) => {
-          console.log(result);
           this.$store.commit("login", true);
           this.$router.push("/");
         })

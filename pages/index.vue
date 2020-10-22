@@ -24,19 +24,19 @@
               label="2.0 +"
               value="2"
               v-model="secrate"
-              @change="selectRating"
+              @change="selectType"
             ></v-checkbox>
             <v-checkbox
               label="3.0 +"
               value="3"
               v-model="secrate"
-              @change="selectRating"
+              @change="selectType"
             ></v-checkbox>
             <v-checkbox
               label="4.0 +"
               value="4"
               v-model="secrate"
-              @change="selectRating"
+              @change="selectType"
             ></v-checkbox>
           </div>
           <div>
@@ -199,8 +199,8 @@ export default {
       text: "",
       topres: [],
       review: 0,
-      type: "0",
-      secrate: "0",
+      type: null,
+      secrate: null,
     };
   },
   computed: {
@@ -295,14 +295,24 @@ export default {
     },
     selectType() {
       var type = "";
+
       if (this.type === "1") {
         type = "ร้านอาหาร";
       } else if (this.type === "2") {
         type = "ร้านกาแฟ";
-      } else if (this.type == null) {
-        this.getres();
       }
-      if (this.type != null) {
+      if (this.type != null && this.secrate != null) {
+        db.collection("restaurant")
+          .where("genre", "==", type)
+          .where("rating", ">=", this.secrate)
+          .onSnapshot((querySnapshot) => {
+            var data = [];
+            querySnapshot.forEach((doc) => {
+              data.push(doc.data());
+            });
+            this.res = data;
+          });
+      } else if (this.type != null && this.secrate == null) {
         db.collection("restaurant")
           .where("genre", "==", type)
           .onSnapshot((querySnapshot) => {
@@ -312,22 +322,19 @@ export default {
             });
             this.res = data;
           });
-      }
-    },
-    selectRating() {
-      var point = "";
-      point = this.secrate;
-
-      if(point)
-      db.collection("restaurant")
-        .where("rating", ">=", point)
-        .onSnapshot((querySnapshot) => {
-          var data = [];
-          querySnapshot.forEach((doc) => {
-            data.push(doc.data());
+      } else if (this.type == null && this.secrate != null) {
+        db.collection("restaurant")
+          .where("rating", ">=", this.secrate)
+          .onSnapshot((querySnapshot) => {
+            var data = [];
+            querySnapshot.forEach((doc) => {
+              data.push(doc.data());
+            });
+            this.res = data;
           });
-          this.res = data;
-        });
+      } else if (this.type == null && this.secrate == null) {
+        this.getres();
+      }
     },
   },
 };

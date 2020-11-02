@@ -14,36 +14,11 @@
                 :src="userdata[0].img"
                 style="border-radius: 5%; width: 100%; hight: auto"
               />
-              <v-dialog v-model="dialog" persistent max-width="600px">
-                <template v-slot:activator="{ on, attrs }">
-                  <v-btn icon v-bind="attrs" v-on="on"
-                    ><v-icon>mdi-square-edit-outline</v-icon>
-                  </v-btn>
-                </template>
-                <v-card>
-                  <v-card-title>
-                    <span class="headline">User</span>
-                  </v-card-title>
-                  <v-card-text>
-                    <v-container>
-                      <v-row> </v-row>
-                    </v-container>
-                  </v-card-text>
-                  <v-card-actions>
-                    <v-spacer></v-spacer>
-                    <v-btn color="blue darken-1" text @click="dialog = false">
-                      Close
-                    </v-btn>
-                    <v-btn
-                      color="blue darken-1"
-                      text
-                      @click="(dialog = false), edituser()"
-                    >
-                      Save
-                    </v-btn>
-                  </v-card-actions>
-                </v-card>
-              </v-dialog>
+              <v-file-input
+                hide-input
+                prepend-icon="mdi-square-edit-outline"
+                @change="previewImage"
+              ></v-file-input>
             </v-col>
             <v-col cols="8" md="8" sm="8">
               <h3>
@@ -126,6 +101,8 @@ export default {
   components: {},
   data() {
     return {
+      imageData: null,
+      picture: null,
       items: [
         {
           text: "หน้าแรก",
@@ -140,7 +117,6 @@ export default {
       ],
       list: [],
       dialog: false,
-      dialog2: false,
       newuser: "",
     };
   },
@@ -173,7 +149,6 @@ export default {
         });
     },
     unfav(index) {
-      console.log(this.userdata[0].favorite[index]);
       db.collection("User")
         .doc(this.userdata[0].email)
         .update({
@@ -185,6 +160,34 @@ export default {
     edituser() {
       var data = { user: this.newuser };
       db.collection("User").doc(this.userdata[0].email).update(data);
+    },
+    previewImage(event) {
+      this.picture = null;
+      this.imageData = event;
+      this.onUpload();
+    },
+    async onUpload() {
+      this.picture = null;
+      const storageRef = firebase
+        .storage()
+        .ref(`Profile/${this.imageData.name}`);
+      var uploadTask = storageRef.put(this.imageData);
+      await uploadTask.on(
+        "state_changed",
+        (snapshot) => {},
+        (error) => {
+          alert(error);
+        },
+        () => {
+          uploadTask.snapshot.ref.getDownloadURL().then((dowloadURL) => {
+            this.picture = dowloadURL;
+            db.collection("User")
+              .doc(this.userdata[0].email)
+              .update({ img: this.picture });
+            alert("Upload สำเร็จ");
+          });
+        }
+      );
     },
   },
 };

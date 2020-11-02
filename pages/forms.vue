@@ -154,14 +154,11 @@
         </v-col>
 
         <v-file-input
+          multiple
           accept="image/*"
           label="เพิ่มรูปภาพ"
           @change="previewImage"
         ></v-file-input>
-        <span
-          >*หากต้องการเพิ่มมากกว่า 1 รูป ให้เลือกไฟล์และกด upload
-          จากนั้นทำซ้ำ</span
-        >
 
         <v-col cols="6">
           <v-btn @click="onUpload">UPLOAD</v-btn>
@@ -272,7 +269,7 @@
                 </v-col>
               </v-row>
               <v-row>
-                <v-col v-for="item in img" :key="item" cols="3">
+                <v-col v-for="item in urlimg" :key="item" cols="3">
                   <v-img :src="item"></v-img>
                 </v-col>
               </v-row>
@@ -305,7 +302,9 @@ export default {
   data() {
     return {
       imageData: null,
-      picture: null,
+      urlimg: [],
+      i: 0,
+      n: 0,
       img: [],
       uploadValue: 0,
       name: "",
@@ -384,30 +383,37 @@ export default {
         });
     },
     previewImage(event) {
-      this.uploadValue = 0;
-      this.picture = null;
+      this.urlimg = [];
       this.imageData = event;
     },
     onUpload() {
-      this.picture = null;
-      const storageRef = firebase
-        .storage()
-        .ref(`restaurant/${this.name}/${this.imageData.name}`);
-      var uploadTask = storageRef.put(this.imageData);
-      uploadTask.on(
-        "state_changed",
-        (snapshot) => {},
-        (error) => {
-          alert(error);
-        },
-        () => {
-          uploadTask.snapshot.ref.getDownloadURL().then((dowloadURL) => {
-            this.picture = dowloadURL;
-            this.img.push(this.picture);
-            alert("Upload สำเร็จ");
+      this.i = 0;
+      this.n = this.imageData.length;
+      for (this.i; this.i < this.n; this.i++) {
+        const storageRef = firebase
+          .storage()
+          .ref(`restaurant/${this.name}/${this.imageData[this.i].name}`);
+        var uploadTask = storageRef.put(this.imageData[this.i]);
+        uploadTask.on(
+          "state_changed",
+          (snapshot) => {},
+          (error) => {
+            console.log(error);
+          }
+        );
+        firebase
+          .storage()
+          .ref(`restaurant/${this.name}/${this.imageData[this.i].name}`)
+          .getDownloadURL()
+          .then((url) => {
+            this.urlimg.push(url);
+            this.urlimg = this.urlimg.filter(function (elem, index, self) {
+              return index === self.indexOf(elem);
+            });
+            alert("สำเร็จ");
+            console.log(this.urlimg);
           });
-        }
-      );
+      }
     },
   },
 };

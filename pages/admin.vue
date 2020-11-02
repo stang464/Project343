@@ -246,7 +246,6 @@ export default {
         this.old = this.desserts[this.editedIndex].name;
         Object.assign(this.desserts[this.editedIndex], this.editedItem);
         this.newname = this.desserts[this.editedIndex].name;
-        console.log(this.old);
         this.arr = this.desserts[this.editedIndex];
       } else {
         this.desserts.push(this.editedItem);

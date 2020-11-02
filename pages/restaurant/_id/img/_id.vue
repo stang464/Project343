@@ -69,7 +69,6 @@ export default {
   },
   methods: {
     getres() {
-      console.log(this.$route.params.id);
       db.collection("restaurant")
         .where("name", "==", this.$route.params.id)
         .onSnapshot((querySnapshot) => {
@@ -93,7 +92,6 @@ export default {
         }
       }
       this.imgComment = arr;
-      console.log(this.imgComment);
     },
   },
 };

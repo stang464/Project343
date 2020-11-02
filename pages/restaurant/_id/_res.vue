@@ -48,7 +48,7 @@
             </v-menu>
           </div>
           <div>
-            <v-btn medium icon @click="addfev(index)">
+            <v-btn medium icon @click="addfev()">
               <v-icon>mdi-bookmark</v-icon>
             </v-btn>
           </div>
@@ -161,7 +161,7 @@
     </div>
     <div v-if="login == false">
       <v-row>
-        <v-col>
+        <v-col class="d-inline-block">
           <v-avatar><v-img :src="userdata.img"></v-img></v-avatar>
           {{ userdata.user }}
         </v-col>
@@ -197,7 +197,7 @@
       <div v-for="(list, i) in res.comment" :key="i">
         <v-card class="pa-2 mt-2">
           <v-row>
-            <v-col>
+            <v-col class="d-inline-block">
               <v-avatar class="mr-3"
                 ><v-img :src="list.avatar"></v-img>
               </v-avatar>
@@ -209,6 +209,16 @@
                 readonly
               ></v-rating>
             </v-col>
+            <v-spacer></v-spacer>
+            <v-btn
+              v-if="
+                userdata.email == res.comment[i].Email || userdata.auth == 3
+              "
+              icon
+              class="mr-2"
+              @click="delComment(i)"
+              ><v-icon color="red">mdi-comment-remove</v-icon></v-btn
+            >
           </v-row>
           <v-row>
             <v-col>
@@ -301,6 +311,21 @@ export default {
           this.img = data[0].img;
         });
     },
+    delComment(i) {
+      var arr = [];
+      for (var k = 0; k < this.res.comment.length; k++) {
+        if (k !== i) {
+          arr.push(this.res.comment[k]);
+        }
+      }
+      db.collection("restaurant")
+        .doc(this.res.name)
+        .update({
+          comment: arr,
+          review: firebase.firestore.FieldValue.increment(-1),
+        });
+      this.calrating();
+    },
     post() {
       var text = this.textpost;
       var email = this.userdata.email;
@@ -387,11 +412,11 @@ export default {
     },
     addfev() {
       if (this.login === false) {
-        var email = this.$nuxt.$store.state.user.email;
-        var data = this.res.name;
         db.collection("User")
-          .doc(email)
-          .update({ favorite: firebase.firestore.FieldValue.arrayUnion(data) })
+          .doc(this.$nuxt.$store.state.user[0].email)
+          .update({
+            favorite: firebase.firestore.FieldValue.arrayUnion(this.res.name),
+          })
           .then(function () {
             alert("เพิ่มร้านโปรด");
           });
@@ -404,7 +429,6 @@ export default {
       var sum = 0;
       for (i in this.res.comment) {
         sum += this.res.comment[i].rate;
-        console.log(sum);
       }
       this.rate = sum / this.res.review;
       db.collection("restaurant")

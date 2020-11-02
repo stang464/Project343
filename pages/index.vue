@@ -335,7 +335,6 @@ export default {
             data.push(doc.data());
           });
           this.topres = data;
-          console.log(this.topres);
         });
     },
     selectType() {

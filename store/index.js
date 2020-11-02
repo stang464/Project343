@@ -1,7 +1,7 @@
 export const strict = false;
 export const state = () => ({
   login: true,
-  user: null,
+  user: [{ auth: 0, email: "null" }],
 });
 
 export const mutations = {

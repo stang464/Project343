@@ -26,16 +26,20 @@
       </v-col>
     </v-row>
     <v-row>
-      <v-col cols="3">
-        <v-avatar color="primary" size="128"><img :src="picture" /></v-avatar>
-      </v-col>
-      <v-col cols="3">
-        <v-file-input
-          accept="image/*"
-          label="เพิ่มรูปภาพ"
-          @change="previewImage"
-        ></v-file-input>
-        <v-btn @click="onUpload">UPLOAD</v-btn>
+      <v-col cols="12" class="d-inline-flex">
+        <div>
+          <v-avatar color="primary" size="128"><img :src="picture" /></v-avatar>
+        </div>
+        <div>
+          <v-file-input
+            accept="image/*"
+            label="เพิ่มรูปภาพ"
+            @change="previewImage"
+          ></v-file-input>
+        </div>
+        <div>
+          <v-btn @click="onUpload">UPLOAD</v-btn>
+        </div>
       </v-col>
     </v-row>
     <v-row>

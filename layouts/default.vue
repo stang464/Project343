@@ -5,19 +5,57 @@
         ><v-toolbar-title v-text="title"
       /></nuxt-link>
       <v-spacer />
-      <v-col cols="5">
-        <nuxt-link to="/forms">
-          <v-btn>Forms</v-btn>
-        </nuxt-link>
-      </v-col>
-      <v-col cols="auto">
+      <v-col v-show="login" cols="auto">
         <v-btn v-show="login" to="/SignUp">SIGN UP</v-btn>
-      </v-col>
-      <v-col cols="auto">
-        <v-btn v-show="!login" to="/profile">PROFILE</v-btn>
-        <v-btn v-show="login" to="/admin">Admin</v-btn>
         <v-btn v-show="login" to="/SignIn">Login</v-btn>
-        <v-btn v-if="!login" @click="signOut">Sign Out</v-btn>
+      </v-col>
+      <v-col v-if="isMobile && !login" cols="auto">
+        <v-menu offset-y>
+          <template v-slot:activator="{ on, attrs }">
+            <v-btn
+              color="primary"
+              text
+              v-bind="attrs"
+              v-on="on"
+              class="pa-0 rounded-pill"
+            >
+              <v-avatar size="37"><v-img :src="user.img"></v-img></v-avatar>
+              <div class="ml-1">{{ user.user }}</div>
+            </v-btn>
+          </template>
+          <v-list>
+            <v-list-item>
+              <v-list-item-title>
+                <v-btn text block to="/profile" class="pa-0">Profile</v-btn>
+              </v-list-item-title>
+            </v-list-item>
+            <v-list-item v-if="user.auth >= 2">
+              <v-list-item-title>
+                <v-btn text block to="/forms" class="pa-0">เพิ่มร้าน</v-btn>
+              </v-list-item-title>
+            </v-list-item>
+            <v-list-item v-if="user.auth >= 2">
+              <v-list-item-title>
+                <v-btn text block to="/manageRestaurant" class="pa-0"
+                  >จัดการร้าน</v-btn
+                >
+              </v-list-item-title>
+            </v-list-item>
+            <v-list-item v-if="user.auth == 3">
+              <v-list-item-title>
+                <v-btn text block to="/admin" class="pa-0">admin</v-btn>
+              </v-list-item-title>
+            </v-list-item>
+            <v-divider></v-divider>
+            <v-list-item>
+              <v-list-item-title>
+                <v-btn text block to="/" color="red" @click="signOut"
+                  >signOut</v-btn
+                >
+              </v-list-item-title>
+            </v-list-item>
+          </v-list>
+        </v-menu>
       </v-col>
     </v-app-bar>
     <v-main>
@@ -69,8 +107,16 @@ export default {
         return this.$nuxt.$store.state.login;
       },
     },
+    user: {
+      get() {
+        return this.$nuxt.$store.state.user[0];
+      },
+    },
   },
   methods: {
+    isMobile() {
+      return this.$vuetify.breakpoint.xsOnly;
+    },
     signOut() {
       firebase
         .auth()

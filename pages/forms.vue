@@ -1,6 +1,6 @@
 <template>
-  <div>
-    <v-card class="mx-auto pa-4" elevation="11">
+  <v-col>
+    <v-card class="pa-4" elevation="11">
       <h3>ลงทะเบียนร้าน</h3>
       <v-form ref="form" v-model="valid" lazy-validation>
         <v-row>
@@ -18,7 +18,9 @@
               :rules="nameRules"
               :items="items"
               label="ประเภทร้าน"
-              required
+              attach
+              chips
+              multiple
             ></v-select>
           </v-col>
         </v-row>
@@ -140,166 +142,159 @@
           <v-col cols="6"> </v-col>
         </v-row>
         <v-divider></v-divider>
-        <v-row>
-          <v-col cols="12">
-            <v-textarea
-              v-model="description"
-              name="input-7-1"
-              label="คำอธิบายร้าน"
-              value=""
-              hint="Hint text"
-            ></v-textarea>
-          </v-col>
-          <v-col cols="3">
-            <v-file-input
-              accept="image/*"
-              label="เพิ่มรูปภาพ"
-              @change="previewImage"
-            ></v-file-input>
-            <span
-              >*หากต้องการเพิ่มมากกว่า 1 รูป ให้เลือกไฟล์และกด upload
-              จากนั้นทำซ้ำ</span
-            >
-          </v-col>
 
-          <v-col cols="6">
-            <v-btn @click="onUpload">UPLOAD</v-btn>
-          </v-col>
-        </v-row>
+        <v-col cols="12">
+          <v-textarea
+            v-model="description"
+            name="input-7-1"
+            label="คำอธิบายร้าน"
+            value=""
+            hint="Hint text"
+          ></v-textarea>
+        </v-col>
 
-        <v-row>
-          <v-col cols="10"> </v-col>
-          <v-col cols="2">
-            <div class="text-center">
-              <v-dialog v-model="dialog" width="800">
-                <template v-slot:activator="{ on, attrs }">
-                  <v-col>
-                    <v-btn
-                      :disabled="!valid"
-                      v-bind="attrs"
-                      v-on="on"
-                      @click="validate"
-                    >
-                      SUMMIT
-                    </v-btn>
-                  </v-col>
-                </template>
+        <v-file-input
+          accept="image/*"
+          label="เพิ่มรูปภาพ"
+          @change="previewImage"
+        ></v-file-input>
+        <span
+          >*หากต้องการเพิ่มมากกว่า 1 รูป ให้เลือกไฟล์และกด upload
+          จากนั้นทำซ้ำ</span
+        >
 
-                <v-card class="pa-4" elevation="11">
-                  <v-row>
-                    <v-col cols="12"> ยืนยันข้อมูล </v-col>
-                  </v-row>
+        <v-col cols="6">
+          <v-btn @click="onUpload">UPLOAD</v-btn>
+        </v-col>
 
-                  <v-divider></v-divider>
+        <v-col cols="12" class="text-right">
+          <v-dialog v-model="dialog" width="800">
+            <template v-slot:activator="{ on, attrs }">
+              <v-col cols="12">
+                <v-btn
+                  :disabled="!valid"
+                  v-bind="attrs"
+                  v-on="on"
+                  @click="validate"
+                >
+                  SUMMIT
+                </v-btn>
+              </v-col>
+            </template>
 
-                  <v-row>
-                    <v-col cols="6">
-                      <v-text-field
-                        :value="name"
-                        label="ชื่อร้าน"
-                        readonly
-                      ></v-text-field>
-                    </v-col>
-                    <v-col cols="6">
-                      <v-text-field
-                        :value="genre"
-                        label="ประเภท"
-                        readonly
-                      ></v-text-field>
-                    </v-col>
-                  </v-row>
-                  <v-row>
-                    <v-col cols="6">
-                      <v-text-field
-                        :value="opentime"
-                        label="เวลาเปิด"
-                        readonly
-                      ></v-text-field>
-                    </v-col>
-                    <v-col cols="6">
-                      <v-text-field
-                        :value="closetime"
-                        label="เวลาปิด"
-                        readonly
-                      ></v-text-field>
-                    </v-col>
-                  </v-row>
-                  <v-row>
-                    <v-col cols="6">
-                      <v-text-field
-                        :value="phone"
-                        label="เบอร์โทรศัพท์"
-                        readonly
-                      ></v-text-field>
-                    </v-col>
-                  </v-row>
-                  <v-divider></v-divider>
-                  <v-row>
-                    <v-col cols="6">
-                      <v-text-field
-                        :value="add"
-                        label="ที่อยู่"
-                        readonly
-                      ></v-text-field>
-                    </v-col>
-                    <v-col cols="2">
-                      <v-text-field
-                        :value="sub_district"
-                        label="ตำบล"
-                        readonly
-                      ></v-text-field>
-                    </v-col>
-                    <v-col cols="2">
-                      <v-text-field
-                        :value="district"
-                        label="อำเภอ/แขวง"
-                        readonly
-                      ></v-text-field>
-                    </v-col>
-                    <v-col cols="2">
-                      <v-text-field
-                        :value="province"
-                        label="จังหวัด"
-                        readonly
-                      ></v-text-field>
-                    </v-col>
-                  </v-row>
-                  <v-row>
-                    <v-col cols="12">
-                      <v-text-field
-                        :value="description"
-                        label="อธิบายร้าน"
-                        readonly
-                      >
-                      </v-text-field>
-                    </v-col>
-                  </v-row>
-                  <v-row>
-                    <v-col v-for="item in img" :key="item" cols="3">
-                      <v-img :src="item"></v-img>
-                    </v-col>
-                  </v-row>
-                  <v-card-actions>
-                    <v-spacer></v-spacer>
-                    <v-btn color="primary" text @click="dialog = false">
-                      แก้ไข
-                    </v-btn>
-                    <v-btn
-                      color="primary"
-                      text
-                      @click="(dialog = false), set(), reset()"
-                    >
-                      ตกลง
-                    </v-btn>
-                  </v-card-actions>
-                </v-card>
-              </v-dialog>
-            </div>
-          </v-col>
-        </v-row>
+            <v-card class="pa-4" elevation="11">
+              <v-row>
+                <v-col cols="12"> ยืนยันข้อมูล </v-col>
+              </v-row>
+
+              <v-divider></v-divider>
+
+              <v-row>
+                <v-col cols="6">
+                  <v-text-field
+                    :value="name"
+                    label="ชื่อร้าน"
+                    readonly
+                  ></v-text-field>
+                </v-col>
+                <v-col cols="6">
+                  <v-text-field
+                    :value="genre"
+                    label="ประเภท"
+                    readonly
+                  ></v-text-field>
+                </v-col>
+              </v-row>
+              <v-row>
+                <v-col cols="6">
+                  <v-text-field
+                    :value="opentime"
+                    label="เวลาเปิด"
+                    readonly
+                  ></v-text-field>
+                </v-col>
+                <v-col cols="6">
+                  <v-text-field
+                    :value="closetime"
+                    label="เวลาปิด"
+                    readonly
+                  ></v-text-field>
+                </v-col>
+              </v-row>
+              <v-row>
+                <v-col cols="6">
+                  <v-text-field
+                    :value="phone"
+                    label="เบอร์โทรศัพท์"
+                    readonly
+                  ></v-text-field>
+                </v-col>
+              </v-row>
+              <v-divider></v-divider>
+              <v-row>
+                <v-col cols="6">
+                  <v-text-field
+                    :value="add"
+                    label="ที่อยู่"
+                    readonly
+                  ></v-text-field>
+                </v-col>
+                <v-col cols="2">
+                  <v-text-field
+                    :value="sub_district"
+                    label="ตำบล"
+                    readonly
+                  ></v-text-field>
+                </v-col>
+                <v-col cols="2">
+                  <v-text-field
+                    :value="district"
+                    label="อำเภอ/แขวง"
+                    readonly
+                  ></v-text-field>
+                </v-col>
+                <v-col cols="2">
+                  <v-text-field
+                    :value="province"
+                    label="จังหวัด"
+                    readonly
+                  ></v-text-field>
+                </v-col>
+              </v-row>
+              <v-row>
+                <v-col cols="12">
+                  <v-text-field
+                    :value="description"
+                    label="อธิบายร้าน"
+                    readonly
+                  >
+                  </v-text-field>
+                </v-col>
+              </v-row>
+              <v-row>
+                <v-col v-for="item in img" :key="item" cols="3">
+                  <v-img :src="item"></v-img>
+                </v-col>
+              </v-row>
+              <v-card-actions>
+                <v-spacer></v-spacer>
+                <v-btn color="primary" text @click="dialog = false">
+                  แก้ไข
+                </v-btn>
+                <v-btn
+                  color="primary"
+                  text
+                  @click="(dialog = false), set(), reset()"
+                >
+                  ตกลง
+                </v-btn>
+              </v-card-actions>
+            </v-card>
+          </v-dialog>
+        </v-col>
       </v-form>
     </v-card>
-  </div>
+  </v-col>
 </template>
 
 <script>
@@ -313,12 +308,23 @@ export default {
       picture: null,
       img: [],
       uploadValue: 0,
-      name: null,
+      name: "",
       phone: "",
       add: "",
       Address: {},
-      genre: "",
-      items: ["ร้านอาหาร", "ร้านขนม", "ร้านกาแฟ"],
+      genre: [],
+      items: [
+        "ร้านอาหาร",
+        "ร้านขนม",
+        "ร้านกาแฟ",
+        "บุฟเฟต์",
+        "ชาบู",
+        "หมูกะทะ",
+        "ญี่ปุ่น",
+        "เกาหลี",
+        "ยุโรป",
+        "นานาชาติ",
+      ],
       arr: {},
       description: "",
       opentime: "",
@@ -334,6 +340,13 @@ export default {
       rating: 0,
       review: 0,
     };
+  },
+  computed: {
+    user: {
+      get() {
+        return this.$nuxt.$store.state.user[0];
+      },
+    },
   },
   methods: {
     reset() {
@@ -361,6 +374,7 @@ export default {
         img: this.img,
         rating: 0,
         review: 0,
+        owner: this.user.email,
       };
       db.collection("restaurant")
         .doc(this.name)
@@ -376,7 +390,9 @@ export default {
     },
     onUpload() {
       this.picture = null;
-      const storageRef = firebase.storage().ref(this.imageData.name);
+      const storageRef = firebase
+        .storage()
+        .ref(`restaurant/${this.name}/${this.imageData.name}`);
       var uploadTask = storageRef.put(this.imageData);
       uploadTask.on(
         "state_changed",

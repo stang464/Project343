@@ -5,13 +5,43 @@
         <div>
           <v-checkbox
             label="ร้านอาหาร"
-            value="1"
+            value="ร้านอาหาร"
             v-model="type"
             @change="selectType"
           ></v-checkbox>
           <v-checkbox
             label="ร้านกาแฟ"
-            value="2"
+            value="ร้านกาแฟ"
+            v-model="type"
+            @change="selectType"
+          ></v-checkbox>
+          <v-checkbox
+            label="บุฟเฟต์"
+            value="บุฟเฟต์"
+            v-model="type"
+            @change="selectType"
+          ></v-checkbox>
+          <v-checkbox
+            label="ชาบู"
+            value="ชาบู"
+            v-model="type"
+            @change="selectType"
+          ></v-checkbox>
+          <v-checkbox
+            label="หมูกะทะ"
+            value="หมูกะทะ"
+            v-model="type"
+            @change="selectType"
+          ></v-checkbox>
+          <v-checkbox
+            label="เกาหลี"
+            value="เกาหลี"
+            v-model="type"
+            @change="selectType"
+          ></v-checkbox>
+          <v-checkbox
+            label="ญี่ปุ่น"
+            value="ญี่ปุ่น"
             v-model="type"
             @change="selectType"
           ></v-checkbox>
@@ -57,7 +87,7 @@
                 v-for="item in topres"
                 :key="item.name"
                 :src="item.img[0]"
-                :to="{ name: 'post-id', params: { id: item.name } }"
+                :to="{ name: 'restaurant-id-res', params: { id: item.name } }"
               >
                 <div>
                   <H3>{{ item.name }}</H3>
@@ -71,7 +101,7 @@
           <v-col cols="10" class="mx-auto d-flex">
             <v-text-field
               label="ค้นหา"
-              placeholder="Placeholder"
+              placeholder="ร้าน , สถานที่"
               v-model="text"
               solo
             ></v-text-field>
@@ -86,7 +116,12 @@
             <v-row class="pa-3">
               <v-col cols="12" class="d-inline-flex mb-0 py-0">
                 <div class="mr-1">
-                  <n-link :to="{ name: 'post-id', params: { id: item.name } }">
+                  <n-link
+                    :to="{
+                      name: 'restaurant-id-res',
+                      params: { id: item.name },
+                    }"
+                  >
                     <h4 style="color: black">
                       {{ item.name }}
                     </h4>
@@ -97,7 +132,7 @@
                 </div>
                 <v-spacer></v-spacer>
                 <div>
-                  <v-menu top :close-on-click="closeOnClick">
+                  <v-menu>
                     <template v-slot:activator="{ on, attrs }">
                       <v-btn
                         color="primary"
@@ -115,7 +150,7 @@
                       <v-list-item>
                         <ShareNetwork
                           network="facebook"
-                          :url="`https://project-cs343-cs313.web.app/post/${link}`"
+                          :url="`https://project-cs343-cs313.web.app/restaurant/${link}`"
                           :title="item.name"
                         >
                           Facebook
@@ -124,7 +159,7 @@
                       <v-list-item>
                         <ShareNetwork
                           network="twitter"
-                          :url="`https://project-cs343-cs313.web.app/post/${link}`"
+                          :url="`https://project-cs343-cs313.web.app/restaurant/${link}`"
                           :title="item.name"
                         >
                           Twitter
@@ -161,13 +196,16 @@
                   </v-sheet>
 
                   <div class="ml-1">{{ item.review }} รีวิว</div>
+                  <div class="ml-3">{{ item.open }} - {{ item.close }}</div>
                 </div>
               </v-col>
               <v-col cols="12">
                 <v-divider></v-divider>
               </v-col>
-              <v-col cols="12" class="py-0">
-                {{ item.genre }}
+              <v-col cols="12" class="py-0 d-inline-flex">
+                <div v-for="item in item.genre" :key="item">
+                  {{ item }} &nbsp;
+                </div>
               </v-col>
               <v-col cols="3" v-for="i in 4" :key="i" class="d-flex">
                 <v-img
@@ -264,6 +302,13 @@ export default {
             arr.push(doc.data());
           });
         });
+      db.collection("restaurant")
+        .where("genre", "array-contains", this.text)
+        .onSnapshot((querySnapshot) => {
+          querySnapshot.forEach((doc) => {
+            arr.push(doc.data());
+          });
+        });
       this.res = arr;
     },
     addfev(index) {
@@ -294,45 +339,28 @@ export default {
         });
     },
     selectType() {
-      var type = "";
-
-      if (this.type === "1") {
-        type = "ร้านอาหาร";
-      } else if (this.type === "2") {
-        type = "ร้านกาแฟ";
-      }
-      if (this.type != null && this.secrate != null) {
-        db.collection("restaurant")
-          .where("genre", "==", type)
-          .where("rating", ">=", this.secrate)
-          .onSnapshot((querySnapshot) => {
-            var data = [];
-            querySnapshot.forEach((doc) => {
-              data.push(doc.data());
-            });
-            this.res = data;
+      if (this.type !== null && this.secrate != null) {
+        var arr = this.res.filter((el) => {
+          return (
+            el.genre.some((el) => {
+              return el === this.type;
+            }) && el.rating >= this.secrate
+          );
+        });
+        this.res = arr;
+      } else if (this.type !== null && this.secrate == null) {
+        arr = this.res.filter((el) => {
+          return el.genre.some((el) => {
+            return el === this.type;
           });
-      } else if (this.type != null && this.secrate == null) {
-        db.collection("restaurant")
-          .where("genre", "==", type)
-          .onSnapshot((querySnapshot) => {
-            var data = [];
-            querySnapshot.forEach((doc) => {
-              data.push(doc.data());
-            });
-            this.res = data;
-          });
-      } else if (this.type == null && this.secrate != null) {
-        db.collection("restaurant")
-          .where("rating", ">=", this.secrate)
-          .onSnapshot((querySnapshot) => {
-            var data = [];
-            querySnapshot.forEach((doc) => {
-              data.push(doc.data());
-            });
-            this.res = data;
-          });
-      } else if (this.type == null && this.secrate == null) {
+        });
+        this.res = arr;
+      } else if (this.type === null && this.secrate != null) {
+        arr = this.res.filter((el) => {
+          return el.rating >= this.secrate;
+        });
+        this.res = arr;
+      } else if (this.type === null && this.secrate == null) {
         this.getres();
       }
     },
@@ -345,6 +373,7 @@ export default {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   color: #2c3e50;
+  background: #f1f1f1;
 }
 a {
   color: black;

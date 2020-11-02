@@ -1,6 +1,9 @@
 <template>
   <v-container>
     <v-row>
+      <v-breadcrumbs :items="items" large></v-breadcrumbs>
+    </v-row>
+    <v-row>
       <v-col cols="12">
         <v-card>
           <v-row class="pa-5">
@@ -98,12 +101,14 @@
                 v-for="(item, index) in userdata[0].favorite"
                 :key="index"
               >
-                <nuxt-link :to="{ name: 'post-id', params: { id: item } }">{{
-                  item
-                }}</nuxt-link>
-                <v-btn icon color="pink" @click="unfav(index)"
-                  ><v-icon> mdi-bookmark-off</v-icon></v-btn
+                <nuxt-link
+                  :to="{ name: 'restaurant-res', params: { id: item } }"
                 >
+                  {{ item }}
+                </nuxt-link>
+                <v-btn icon color="pink" @click="unfav(index)">
+                  <v-icon> mdi-bookmark-off</v-icon>
+                </v-btn>
               </v-list>
             </v-list>
           </v-col>
@@ -121,8 +126,21 @@ export default {
   components: {},
   data() {
     return {
+      items: [
+        {
+          text: "หน้าแรก",
+          disabled: false,
+          to: "/",
+        },
+        {
+          text: "Profile",
+          disabled: true,
+          to: "/",
+        },
+      ],
       list: [],
       dialog: false,
+      dialog2: false,
       newuser: "",
     };
   },

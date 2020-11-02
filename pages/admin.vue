@@ -18,7 +18,7 @@
                   <v-col cols="12" sm="6" md="4">
                     <v-text-field
                       v-model="editedItem.name"
-                      label="Dessert name"
+                      label="name"
                     ></v-text-field>
                   </v-col>
                   <v-col cols="12" sm="6" md="4">
@@ -74,7 +74,7 @@
                   <v-col>
                     <v-card-actions>
                       <v-spacer></v-spacer>
-                      <v-btn color="blue darken-1" text @click="closeDelete"
+                      <v-btn color="blue darken-1" text @click="close()"
                         >Cancel</v-btn
                       >
                       <v-btn color="blue darken-1" text @click="save">OK</v-btn>
@@ -246,6 +246,7 @@ export default {
         this.old = this.desserts[this.editedIndex].name;
         Object.assign(this.desserts[this.editedIndex], this.editedItem);
         this.newname = this.desserts[this.editedIndex].name;
+        console.log(this.old);
         this.arr = this.desserts[this.editedIndex];
       } else {
         this.desserts.push(this.editedItem);
@@ -255,13 +256,14 @@ export default {
         .get()
         .then((doc) => {
           if (doc && doc.exists) {
-            var old = this.old;
             var obj = this.arr;
             db.collection("restaurant")
               .doc(this.newname)
               .set(obj)
-              .then(function () {
-                db.collection("restaurant").doc(old).delete();
+              .then(() => {
+                if (this.newname !== this.old) {
+                  db.collection("restaurant").doc(this.old).delete();
+                }
               });
           }
         });
